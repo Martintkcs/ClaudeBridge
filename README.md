@@ -41,7 +41,7 @@ Requirements:
 Start the app:
 
 ```powershell
-cd "C:\Users\marti\Documents\Claude Bridge"
+cd "<path-to-ClaudeBridge>"
 .\start.cmd
 ```
 
@@ -68,11 +68,7 @@ Then open the Tailscale URL on your phone:
 http://YOUR-MACHINE.YOUR-TAILNET.ts.net/
 ```
 
-Example:
-
-```text
-http://desktop-ef1ih84.tail7b7a5a.ts.net/
-```
+Replace `YOUR-MACHINE` and `YOUR-TAILNET` with your own Tailscale machine name and tailnet name.
 
 The token is entered once in the login screen. It is then stored in the browser and sent via the `X-Claude-Bridge-Token` header, so it does not stay visible in the URL.
 
