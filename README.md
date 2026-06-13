@@ -60,7 +60,7 @@ Open locally:
 http://127.0.0.1:8765/
 ```
 
-On first launch, Claude Bridge creates `config.json`. That file contains the login token. The token is ignored by Git and should never be committed.
+On first launch, Claude Bridge creates `config.json`. That file contains the login token. The launcher also prints the local login URL and token in the PowerShell or terminal window when the app starts. The token is ignored by Git and should never be committed.
 
 ## Mobile Access
 
