@@ -2,6 +2,7 @@
 
 import argparse
 import base64
+from collections import deque
 import datetime as dt
 import html
 import json
@@ -327,6 +328,94 @@ def normalize_title(value: object) -> str:
     return text if len(text) <= 96 else text[:93] + "..."
 
 
+def clean_session_value(value: object) -> str:
+    if isinstance(value, str):
+        return value.strip()
+    return ""
+
+
+def clean_tool_list(value: object) -> str:
+    if isinstance(value, str):
+        return value.strip()
+    if isinstance(value, list):
+        return " ".join(str(item).strip() for item in value if str(item).strip())
+    return ""
+
+
+def session_options_from_mapping(data: object) -> dict:
+    if not isinstance(data, dict):
+        return {"model": "", "permission_mode": "", "allowed_tools": ""}
+    return {
+        "model": clean_session_value(data.get("model") or data.get("modelId") or data.get("activeModel")),
+        "permission_mode": clean_session_value(
+            data.get("permissionMode")
+            or data.get("permission_mode")
+            or data.get("permission-mode")
+            or data.get("activePermissionMode")
+        ),
+        "allowed_tools": clean_tool_list(data.get("allowedTools") or data.get("allowed_tools")),
+    }
+
+
+def merge_session_options(base: dict, extra: dict) -> dict:
+    merged = dict(base)
+    for key in ("model", "permission_mode", "allowed_tools"):
+        if not merged.get(key) and extra.get(key):
+            merged[key] = extra[key]
+    return merged
+
+
+def claude_project_state(cwd: str) -> dict:
+    if not cwd:
+        return {}
+    state_path = Path.home() / ".claude.json"
+    if not state_path.exists():
+        return {}
+    try:
+        data = json.loads(state_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError, UnicodeDecodeError):
+        return {}
+    projects = data.get("projects")
+    if not isinstance(projects, dict):
+        return {}
+    candidates = [
+        cwd,
+        cwd.replace("\\", "/"),
+        cwd.replace("/", "\\"),
+    ]
+    for key in candidates:
+        value = projects.get(key)
+        if isinstance(value, dict):
+            return value
+    return {}
+
+
+def session_defaults_from_jsonl(path: Path) -> dict:
+    defaults = {"model": "", "permission_mode": "", "allowed_tools": "", "cwd": ""}
+    try:
+        recent_lines: deque[str] = deque(maxlen=800)
+        with path.open("r", encoding="utf-8") as handle:
+            for line in handle:
+                recent_lines.append(line)
+    except OSError:
+        return defaults
+
+    for line in recent_lines:
+        try:
+            item = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if not isinstance(item, dict):
+            continue
+        if item.get("cwd"):
+            defaults["cwd"] = clean_session_value(item.get("cwd"))
+        defaults = merge_session_options(defaults, session_options_from_mapping(item))
+        message = item.get("message")
+        if isinstance(message, dict) and message.get("model"):
+            defaults["model"] = clean_session_value(message.get("model"))
+    return defaults
+
+
 def session_from_desktop_metadata(path: Path) -> dict | None:
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
@@ -340,7 +429,8 @@ def session_from_desktop_metadata(path: Path) -> dict | None:
     cwd = str(data.get("cwd") or data.get("originCwd") or "").strip()
     updated = parse_claude_ts(data.get("lastActivityAt") or data.get("lastFocusedAt") or data.get("createdAt"), path.stat().st_mtime)
     title = normalize_title(data.get("title"))
-    model = str(data.get("model") or "").strip()
+    defaults = session_options_from_mapping(data)
+    defaults = merge_session_options(defaults, session_options_from_mapping(claude_project_state(cwd)))
     archived = bool(data.get("isArchived"))
     return {
         "id": cli_session_id,
@@ -350,7 +440,9 @@ def session_from_desktop_metadata(path: Path) -> dict | None:
         "updated_at": dt.datetime.fromtimestamp(updated).replace(microsecond=0).isoformat(),
         "updated_sort": updated,
         "source": "Claude Desktop",
-        "model": model,
+        "model": defaults["model"],
+        "permission_mode": defaults["permission_mode"],
+        "allowed_tools": defaults["allowed_tools"],
         "archived": archived,
     }
 
@@ -394,15 +486,20 @@ def session_from_project_jsonl(path: Path) -> dict | None:
     project_name = path.parent.name.replace("--", ":\\").replace("-", "\\")
     title = first_user_title_from_jsonl(path) or project_name or "Claude CLI session"
     updated = path.stat().st_mtime
+    defaults = session_defaults_from_jsonl(path)
+    cwd = defaults.get("cwd") or ""
+    defaults = merge_session_options(defaults, session_options_from_mapping(claude_project_state(cwd)))
     return {
         "id": session_id,
         "title": normalize_title(title),
-        "cwd": "",
-        "cwd_short": project_name,
+        "cwd": cwd,
+        "cwd_short": short_path(cwd) if cwd else project_name,
         "updated_at": dt.datetime.fromtimestamp(updated).replace(microsecond=0).isoformat(),
         "updated_sort": updated,
         "source": "Claude CLI",
-        "model": "",
+        "model": defaults["model"],
+        "permission_mode": defaults["permission_mode"],
+        "allowed_tools": defaults["allowed_tools"],
         "archived": False,
     }
 
@@ -2306,7 +2403,7 @@ def render_index_v2(is_authorized: bool, token: str) -> str:
         <button class="secondary" type="button" onclick="setTomorrowMorning()">Holnap 9:00</button>
       </div>
       <label>Claude session
-        <select id="scheduleSessionSelect"></select>
+        <select id="scheduleSessionSelect" onchange="applyScheduleSessionDefaults()"></select>
       </label>
       <div class="run-options">
         <label>Modell
@@ -2404,6 +2501,49 @@ def render_index_v2(is_authorized: bool, token: str) -> str:
       return sessions.find(session => session.id === selectedSessionId) || null;
     }}
 
+    function optionExists(select, value) {{
+      return Array.from(select.options).some(option => option.value === value);
+    }}
+
+    function setSelectValue(selectId, value, label) {{
+      const select = document.getElementById(selectId);
+      const clean = String(value || "").trim();
+      if (!clean) {{
+        select.value = "";
+        return;
+      }}
+      if (!optionExists(select, clean)) {{
+        const option = new Option(label || clean, clean);
+        option.dataset.sessionDefault = "true";
+        select.appendChild(option);
+      }}
+      select.value = clean;
+    }}
+
+    function applyOptionsToPrefix(prefix, session) {{
+      if (!session) {{
+        setSelectValue(prefix + "Model", "", "");
+        setSelectValue(prefix + "PermissionMode", "", "");
+        document.getElementById(prefix + "AllowedTools").value = "";
+        return;
+      }}
+      setSelectValue(prefix + "Model", session.model || "", session.model ? `session: ${{session.model}}` : "");
+      setSelectValue(prefix + "PermissionMode", session.permission_mode || "", session.permission_mode ? `session: ${{session.permission_mode}}` : "");
+      document.getElementById(prefix + "AllowedTools").value = session.allowed_tools || "";
+    }}
+
+    function applyCurrentSessionDefaults() {{
+      const session = currentSession();
+      applyOptionsToPrefix("send", session);
+      syncSendOptionsToMobile();
+    }}
+
+    function applyScheduleSessionDefaults() {{
+      const select = document.getElementById("scheduleSessionSelect");
+      const session = sessions.find(item => item.id === select.value) || null;
+      applyOptionsToPrefix("schedule", session);
+    }}
+
     function sessionGroupKey(session) {{
       return session.cwd_short || session.cwd || session.source || "Egyéb";
     }}
@@ -2487,6 +2627,7 @@ def render_index_v2(is_authorized: bool, token: str) -> str:
       selectedSessionId = sessionId;
       if (selectedSessionId) localStorage.setItem("claudeBridgeSelectedSession", selectedSessionId);
       else localStorage.removeItem("claudeBridgeSelectedSession");
+      applyCurrentSessionDefaults();
       document.querySelector(".app").classList.add("chat-open");
       fillSessionSelect("scheduleSessionSelect");
       renderSessions();
@@ -2544,8 +2685,11 @@ def render_index_v2(is_authorized: bool, token: str) -> str:
     function renderHeader() {{
       const session = currentSession();
       document.getElementById("currentTitle").textContent = session ? session.title : "Új beszélgetés";
+      const optionMeta = session && (session.model || session.permission_mode)
+        ? ` · ${{[session.model, session.permission_mode].filter(Boolean).join(" · ")}}`
+        : "";
       document.getElementById("currentMeta").textContent = session
-        ? `${{session.cwd_short || session.source || ""}}`
+        ? `${{session.cwd_short || session.source || ""}}${{optionMeta}}`
         : "A következő küldés új nem-interaktív Claude futást indít.";
     }}
 
@@ -2559,6 +2703,7 @@ def render_index_v2(is_authorized: bool, token: str) -> str:
           localStorage.removeItem("claudeBridgeSelectedSession");
         }}
         fillSessionSelect("scheduleSessionSelect");
+        applyCurrentSessionDefaults();
         renderSessions();
         renderHeader();
         renderJobs();

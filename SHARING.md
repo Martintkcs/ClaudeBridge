@@ -8,7 +8,8 @@ Recommended setup:
 
 - GitHub repository for the code.
 - Tailscale for private access.
-- `ClaudeBridge.cmd` as the one-click local launcher.
+- `ClaudeBridge.cmd` as the Windows launcher.
+- `ClaudeBridge.sh` as the macOS launcher.
 - No public router port forwarding.
 - One local Claude Bridge instance per trusted machine.
 
@@ -58,6 +59,8 @@ http://machine-name.tailnet-name.ts.net/
 ```
 
 You can rename the machine in the Tailscale admin console to get a cleaner URL.
+
+For detailed setup steps, see [TAILSCALE.md](TAILSCALE.md).
 
 For a real public custom domain, use Cloudflare Tunnel or another authenticated reverse proxy. Do not expose Claude Bridge directly to the internet with only a shared token.
 

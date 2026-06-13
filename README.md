@@ -33,16 +33,23 @@ The app reads local Claude session metadata and transcript files, then presents 
 
 Requirements:
 
-- Windows
+- Windows or macOS
 - Python 3.10+
 - Claude Code / Claude CLI installed and authenticated
 - Tailscale for remote mobile access
 
-Start the app:
+Start on Windows:
 
 ```powershell
 cd "<path-to-ClaudeBridge>"
 .\ClaudeBridge.cmd
+```
+
+Start on macOS:
+
+```bash
+cd "<path-to-ClaudeBridge>"
+bash ./ClaudeBridge.sh
 ```
 
 Open locally:
@@ -55,10 +62,18 @@ On first launch, Claude Bridge creates `config.json`. That file contains the log
 
 ## Mobile Access
 
-Recommended setup is Tailscale Serve.
+Recommended setup is Tailscale Serve. For a full Windows and macOS step-by-step guide, see [TAILSCALE.md](TAILSCALE.md).
+
+On Windows:
 
 ```powershell
 .\ClaudeBridge.cmd
+```
+
+On macOS:
+
+```bash
+bash ./ClaudeBridge.sh
 ```
 
 Then open the Tailscale URL on your phone:
@@ -82,6 +97,8 @@ After that, the normal daily startup command is still:
 ```powershell
 .\ClaudeBridge.cmd
 ```
+
+Daily usage is intentionally simple: start `ClaudeBridge.cmd` on Windows or `ClaudeBridge.sh` on macOS, then open your Tailscale MagicDNS URL from the phone.
 
 ## Permissions And Tools
 

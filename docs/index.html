@@ -95,6 +95,7 @@
       <div class="actions">
         <a class="button primary" href="https://github.com/Martintkcs/ClaudeBridge">View on GitHub</a>
         <a class="button" href="#quick-start">Quick start</a>
+        <a class="button" href="#tailscale">Tailscale setup</a>
         <a class="button" href="#security">Security model</a>
       </div>
     </div>
@@ -137,18 +138,64 @@
       <div>
         <h2>Quick Start</h2>
         <p>Run Claude Bridge on the same machine where Claude Code is installed and authenticated.</p>
+        <p><strong>Windows</strong></p>
         <pre><code>cd "&lt;path-to-ClaudeBridge&gt;"
 .\ClaudeBridge.cmd</code></pre>
+        <p><strong>macOS</strong></p>
+        <pre><code>cd "&lt;path-to-ClaudeBridge&gt;"
+bash ./ClaudeBridge.sh</code></pre>
         <p>Then open:</p>
         <pre><code>http://127.0.0.1:8765/</code></pre>
       </div>
       <div>
         <h2>Mobile Access</h2>
-        <p>Use Tailscale Serve for private mobile access.</p>
-        <pre><code>.\ClaudeBridge.cmd</code></pre>
+        <p>Use Tailscale Serve for private mobile access. The launcher configures Serve when the Tailscale CLI is installed and connected.</p>
+        <pre><code># Windows
+.\ClaudeBridge.cmd
+
+# macOS
+bash ./ClaudeBridge.sh</code></pre>
         <p>Open your Tailscale machine URL on your phone:</p>
         <pre><code>http://YOUR-MACHINE.YOUR-TAILNET.ts.net/</code></pre>
       </div>
+    </div>
+  </section>
+
+  <section id="tailscale">
+    <div class="wrap">
+      <h2>Tailscale Setup</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>1. Install and sign in</h3>
+          <p>Install Tailscale on the computer and phone, then sign in to the same tailnet on both devices.</p>
+        </div>
+        <div class="card">
+          <h3>2. Use MagicDNS</h3>
+          <p>Find the computer's MagicDNS name in Tailscale, then open it from the phone as an HTTP URL.</p>
+        </div>
+        <div class="card">
+          <h3>3. Run the launcher</h3>
+          <p>Windows uses <code>ClaudeBridge.cmd</code>. macOS uses <code>bash ./ClaudeBridge.sh</code>.</p>
+        </div>
+      </div>
+      <div class="split" style="margin-top:24px">
+        <div>
+          <h2>Windows</h2>
+          <pre><code>winget install --id Tailscale.Tailscale -e
+.\ClaudeBridge.cmd</code></pre>
+          <p>If Serve needs administrator access, run once from Administrator PowerShell:</p>
+          <pre><code>.\setup-tailscale-serve.cmd</code></pre>
+        </div>
+        <div>
+          <h2>macOS</h2>
+          <pre><code># Install Tailscale from tailscale.com/download/mac
+tailscale status
+bash ./ClaudeBridge.sh</code></pre>
+          <p>If Serve needs manual setup, run once:</p>
+          <pre><code>bash ./setup-tailscale-serve.sh</code></pre>
+        </div>
+      </div>
+      <p>Full details are in <code>TAILSCALE.md</code>. Keep Claude Bridge private to your Tailscale network; do not forward router ports to it.</p>
     </div>
   </section>
 
