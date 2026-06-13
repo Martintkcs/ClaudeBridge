@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Claude Bridge</title>
+  <meta name="description" content="A local mobile-friendly web bridge for Claude Code sessions.">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #15110e;
+      --panel: #211914;
+      --soft: #2d211a;
+      --line: #3b2c24;
+      --text: #fff6ec;
+      --muted: #c4aa99;
+      --accent: #dd7957;
+      --accent-2: #7cc7b5;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    a { color: var(--accent-2); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    header {
+      min-height: 76vh;
+      display: grid;
+      align-items: center;
+      padding: 56px 22px;
+      border-bottom: 1px solid var(--line);
+      background:
+        radial-gradient(circle at 70% 20%, rgba(221, 121, 87, .18), transparent 34%),
+        linear-gradient(180deg, #19120f 0%, var(--bg) 100%);
+    }
+    .wrap { width: min(1080px, 100%); margin: 0 auto; }
+    .eyebrow { color: var(--accent-2); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 13px; }
+    h1 { font-size: clamp(42px, 8vw, 92px); line-height: .95; margin: 12px 0 18px; letter-spacing: 0; }
+    .lead { font-size: clamp(18px, 2.5vw, 24px); color: var(--muted); width: min(760px, 100%); }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      color: var(--text);
+      font-weight: 700;
+      background: var(--soft);
+    }
+    .button.primary { background: var(--accent); border-color: var(--accent); color: #fffaf2; }
+    section { padding: 54px 22px; border-bottom: 1px solid var(--line); }
+    h2 { font-size: clamp(28px, 4vw, 42px); margin: 0 0 18px; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 18px;
+      min-height: 150px;
+    }
+    .card h3 { margin: 0 0 8px; }
+    .card p { margin: 0; color: var(--muted); }
+    pre {
+      overflow: auto;
+      background: #0f0c0a;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px;
+      color: #f7e9d7;
+    }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+    ul { color: var(--muted); }
+    footer { padding: 28px 22px; color: var(--muted); }
+    @media (max-width: 780px) {
+      header { min-height: auto; }
+      .grid, .split { grid-template-columns: 1fr; }
+      .actions { display: grid; }
+      .button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="eyebrow">Local Claude Code remote control</div>
+      <h1>Claude Bridge</h1>
+      <p class="lead">A small, mobile-friendly web app for controlling your local Claude Code sessions from a browser, scheduling prompts, attaching files, and watching run events.</p>
+      <div class="actions">
+        <a class="button primary" href="https://github.com/Martintkcs/ClaudeBridge">View on GitHub</a>
+        <a class="button" href="#quick-start">Quick start</a>
+        <a class="button" href="#security">Security model</a>
+      </div>
+    </div>
+  </header>
+
+  <section>
+    <div class="wrap">
+      <h2>Why It Exists</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Use Claude from mobile</h3>
+          <p>Open a private Tailscale URL and send prompts to your local Claude Code sessions from your phone.</p>
+        </div>
+        <div class="card">
+          <h3>Keep sessions organized</h3>
+          <p>Sessions are grouped by project folders, similar to Codex, so work stays easy to scan.</p>
+        </div>
+        <div class="card">
+          <h3>Schedule work</h3>
+          <p>Prepare a prompt and have it sent later, even after restarting the Bridge.</p>
+        </div>
+        <div class="card">
+          <h3>Attach files</h3>
+          <p>Upload files, preview images, paste screenshots, and pass attachments to Claude CLI.</p>
+        </div>
+        <div class="card">
+          <h3>Choose permissions</h3>
+          <p>Select model, permission mode, and allowed tools before sending a run.</p>
+        </div>
+        <div class="card">
+          <h3>Watch progress</h3>
+          <p>Stream run events into a small timeline and stop running jobs when needed.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="quick-start">
+    <div class="wrap split">
+      <div>
+        <h2>Quick Start</h2>
+        <p>Run Claude Bridge on the same machine where Claude Code is installed and authenticated.</p>
+        <pre><code>cd "C:\Users\marti\Documents\Claude Bridge"
+.\start.cmd</code></pre>
+        <p>Then open:</p>
+        <pre><code>http://127.0.0.1:8765/</code></pre>
+      </div>
+      <div>
+        <h2>Mobile Access</h2>
+        <p>Use Tailscale Serve for private mobile access.</p>
+        <pre><code>.\setup-tailscale-serve.cmd
+.\start.cmd</code></pre>
+        <p>Open your Tailscale machine URL on your phone:</p>
+        <pre><code>http://YOUR-MACHINE.YOUR-TAILNET.ts.net/</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap split">
+      <div>
+        <h2>How It Works</h2>
+        <p>Claude Bridge does not automate the Claude Desktop window. It runs the Claude CLI locally and resumes selected Claude Code sessions.</p>
+        <pre><code>claude -p "your message" --resume SESSION_ID</code></pre>
+      </div>
+      <div>
+        <h2>Local Data</h2>
+        <ul>
+          <li><code>config.json</code>: local login token</li>
+          <li><code>claude_bridge.sqlite3</code>: runs, jobs, events</li>
+          <li><code>uploads/</code>: local uploaded attachments</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="security">
+    <div class="wrap">
+      <h2>Security Model</h2>
+      <p>Claude Bridge is currently best used as a private Tailscale-only MVP. Do not expose it directly to the public internet with only a shared token.</p>
+      <div class="grid">
+        <div class="card">
+          <h3>Good for private use</h3>
+          <p>Tailscale, trusted users, local machine, and narrow tool permissions.</p>
+        </div>
+        <div class="card">
+          <h3>Not public-ready yet</h3>
+          <p>Needs per-user auth, rate limiting, audit logs, token rotation, and stronger approval handling.</p>
+        </div>
+        <div class="card">
+          <h3>Be careful with tools</h3>
+          <p>Broad Bash/Edit/Write permissions can affect files on the host machine.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">Claude Bridge is an independent local tool for Claude Code users.</div>
+  </footer>
+</body>
+</html>
