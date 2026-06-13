@@ -465,7 +465,7 @@ def message_attachments(content: object) -> list[dict]:
     return attachments
 
 
-def read_claude_thread(session_id: str, limit: int = 80) -> list[dict]:
+def read_claude_thread(session_id: str, limit: int = 40) -> list[dict]:
     path = find_project_jsonl(session_id)
     if not path:
         return []
@@ -1515,6 +1515,7 @@ def render_index_v2(is_authorized: bool, token: str) -> str:
     }}
     .auth-card h1 {{ margin: 0 0 6px; font-size: 24px; }}
     .auth-card p {{ margin: 0 0 14px; color: var(--muted); }}
+    .auth-card .primary {{ margin-top: 12px; }}
     .app.{locked} {{ display: none; }}
     .app {{
       height: 100vh;
@@ -1876,12 +1877,18 @@ def render_index_v2(is_authorized: bool, token: str) -> str:
       justify-content: center;
       padding: 18px;
       z-index: 10;
+      overflow: hidden;
+      overscroll-behavior: none;
+      touch-action: none;
     }}
     .modal-backdrop.open {{ display: flex; }}
     .modal {{
       width: min(620px, calc(100vw - 36px));
       max-height: min(760px, calc(100dvh - 36px));
       overflow: auto;
+      overscroll-behavior: contain;
+      touch-action: pan-y;
+      -webkit-overflow-scrolling: touch;
       background: var(--panel);
       border: 1px solid var(--line);
       border-radius: 16px;
@@ -2115,15 +2122,20 @@ def render_index_v2(is_authorized: bool, token: str) -> str:
         gap: 10px;
       }}
       .modal-backdrop {{
-        align-items: flex-end;
-        padding: 10px;
+        align-items: center;
+        justify-content: center;
+        padding: max(12px, env(safe-area-inset-top)) 10px max(12px, env(safe-area-inset-bottom));
+        overflow: hidden;
+        touch-action: none;
       }}
       .modal {{
-        width: 100%;
-        max-height: 92dvh;
+        width: min(100%, 440px);
+        max-height: calc(100dvh - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
         overflow: auto;
-        border-radius: 16px 16px 10px 10px;
+        border-radius: 16px;
         padding-bottom: max(16px, env(safe-area-inset-bottom));
+        overscroll-behavior: contain;
+        touch-action: pan-y;
       }}
       .schedule-grid {{
         grid-template-columns: 1fr 128px;
@@ -2550,6 +2562,9 @@ def render_index_v2(is_authorized: bool, token: str) -> str:
         renderSessions();
         renderHeader();
         renderJobs();
+        if (selectedSessionId) {{
+          document.querySelector(".app").classList.add("chat-open");
+        }}
         if (!transcript.length) {{
           pendingInitialScroll = true;
           loadThread();
@@ -2756,10 +2771,14 @@ def render_index_v2(is_authorized: bool, token: str) -> str:
     }}
 
     function scrollThreadToBottom() {{
-      requestAnimationFrame(() => {{
+      const go = () => {{
         const content = document.querySelector(".content");
         if (content) content.scrollTop = content.scrollHeight;
-      }});
+      }};
+      requestAnimationFrame(go);
+      setTimeout(go, 80);
+      setTimeout(go, 250);
+      setTimeout(go, 700);
     }}
 
     function uploadFile(file) {{
@@ -2976,6 +2995,10 @@ def render_index_v2(is_authorized: bool, token: str) -> str:
     function backdropClose(event) {{
       if (event.target.id === "scheduleModal") closeSchedule();
     }}
+
+    document.getElementById("scheduleModal").addEventListener("touchmove", event => {{
+      if (!event.target.closest(".modal")) event.preventDefault();
+    }}, {{ passive: false }});
 
     async function schedule() {{
       const button = document.getElementById("scheduleButton");

@@ -8,6 +8,7 @@ Recommended setup:
 
 - GitHub repository for the code.
 - Tailscale for private access.
+- `ClaudeBridge.cmd` as the one-click local launcher.
 - No public router port forwarding.
 - One local Claude Bridge instance per trusted machine.
 

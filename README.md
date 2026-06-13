@@ -42,7 +42,7 @@ Start the app:
 
 ```powershell
 cd "<path-to-ClaudeBridge>"
-.\start.cmd
+.\ClaudeBridge.cmd
 ```
 
 Open locally:
@@ -58,8 +58,7 @@ On first launch, Claude Bridge creates `config.json`. That file contains the log
 Recommended setup is Tailscale Serve.
 
 ```powershell
-.\setup-tailscale-serve.cmd
-.\start.cmd
+.\ClaudeBridge.cmd
 ```
 
 Then open the Tailscale URL on your phone:
@@ -71,6 +70,18 @@ http://YOUR-MACHINE.YOUR-TAILNET.ts.net/
 Replace `YOUR-MACHINE` and `YOUR-TAILNET` with your own Tailscale machine name and tailnet name.
 
 The token is entered once in the login screen. It is then stored in the browser and sent via the `X-Claude-Bridge-Token` header, so it does not stay visible in the URL.
+
+If Tailscale Serve cannot be configured from a normal terminal, run this once from an Administrator PowerShell:
+
+```powershell
+.\setup-tailscale-serve.cmd
+```
+
+After that, the normal daily startup command is still:
+
+```powershell
+.\ClaudeBridge.cmd
+```
 
 ## Permissions And Tools
 
