@@ -21,10 +21,13 @@ Commit:
 - `README.md`
 - `SHARING.md`
 - `SECURITY_REVIEW.md`
+- `TAILSCALE.md`
+- `TESTING.md`
 - `docs/index.html`
 - `.gitignore`
 - `*.cmd`
 - `*.ps1`
+- `*.sh`
 
 Do not commit:
 
@@ -81,3 +84,13 @@ Before public or team-wide production use:
 ## Important Limitation
 
 Claude Bridge uses the Claude CLI on the machine where it runs. Whoever can access the Bridge may be able to act through that machine's Claude Code environment. Treat access as sensitive.
+
+## Teammate Testing Checklist
+
+Before sending it to teammates:
+
+- Make sure `README.md`, `TESTING.md`, `TAILSCALE.md`, and `SECURITY_REVIEW.md` are committed.
+- Make sure `config.json`, `claude_bridge.sqlite3`, and `uploads/` are not committed.
+- Tell testers to run their own local instance.
+- Tell testers not to share tokens in screenshots or bug reports.
+- Ask testers to include OS, browser, Claude Code version, and terminal output when reporting issues.

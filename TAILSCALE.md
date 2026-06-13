@@ -234,7 +234,7 @@ Check these:
 - Tailscale is connected on the phone.
 - Both devices are logged into the same tailnet.
 - The phone is opening `http://...`, not `https://...`.
-- `ClaudeBridge.cmd` is still running.
+- `ClaudeBridge.cmd` or `ClaudeBridge.sh` is still running.
 - Tailscale Serve was configured successfully.
 
 If needed, run once as Administrator:

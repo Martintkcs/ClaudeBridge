@@ -38,6 +38,8 @@ Requirements:
 - Claude Code / Claude CLI installed and authenticated
 - Tailscale for remote mobile access
 
+For teammate testing, each tester should run Claude Bridge on their own computer with their own Claude Code login. Do not share your local `config.json`, token, database, or uploads folder. See [TESTING.md](TESTING.md).
+
 Start on Windows:
 
 ```powershell
@@ -99,6 +101,17 @@ After that, the normal daily startup command is still:
 ```
 
 Daily usage is intentionally simple: start `ClaudeBridge.cmd` on Windows or `ClaudeBridge.sh` on macOS, then open your Tailscale MagicDNS URL from the phone.
+
+## Testing With Teammates
+
+Send teammates:
+
+- the GitHub repository link
+- [README.md](README.md)
+- [TESTING.md](TESTING.md)
+- [TAILSCALE.md](TAILSCALE.md)
+
+Each tester should create their own local token by starting the app. They should not reuse your token.
 
 ## Permissions And Tools
 

@@ -96,6 +96,7 @@
         <a class="button primary" href="https://github.com/Martintkcs/ClaudeBridge">View on GitHub</a>
         <a class="button" href="#quick-start">Quick start</a>
         <a class="button" href="#tailscale">Tailscale setup</a>
+        <a class="button" href="#testing">Testing</a>
         <a class="button" href="#security">Security model</a>
       </div>
     </div>
@@ -213,6 +214,27 @@ bash ./ClaudeBridge.sh</code></pre>
           <li><code>claude_bridge.sqlite3</code>: runs, jobs, events</li>
           <li><code>uploads/</code>: local uploaded attachments</li>
         </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="testing">
+    <div class="wrap">
+      <h2>Testing With Teammates</h2>
+      <p>Each tester should run Claude Bridge on their own computer with their own Claude Code login. Do not share your local token, <code>config.json</code>, database, uploads folder, or personal Tailscale URL.</p>
+      <div class="grid">
+        <div class="card">
+          <h3>Send these</h3>
+          <p>Repository link, README.md, TESTING.md, TAILSCALE.md, and SECURITY_REVIEW.md.</p>
+        </div>
+        <div class="card">
+          <h3>Ask them to verify</h3>
+          <p>Login, session list, session history, model and permission defaults, send, schedule, delete schedule, attachments, and mobile Tailscale access.</p>
+        </div>
+        <div class="card">
+          <h3>Ask for reports</h3>
+          <p>OS, browser, Claude Code version, local or Tailscale URL, screenshot, and terminal output. Never ask for tokens.</p>
+        </div>
       </div>
     </div>
   </section>
